@@ -13,9 +13,7 @@ Contains original real and deepfake videos with synchronized audio.
 To ensure efficient training and fair evaluation, we use modality-specific preprocessed datasets:
 
 Preprocessed Video Frames
-Extracted and aligned facial frames used for video-based deepfake detection models.
 🔗 https://www.kaggle.com/datasets/mbulsss/fakeavceleb-preprocessed-frame
 
 Preprocessed Audio
-Audio tracks extracted and segmented for audio-based deepfake detection.
 🔗 https://www.kaggle.com/datasets/mbulsss/fakeavceleb-audio
