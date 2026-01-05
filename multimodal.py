@@ -1,18 +1,3 @@
-"""
-🔥 MULTIMODAL DEEPFAKE DETECTION - FIXED VERSION
-
-Fixes Applied:
-1. ✅ Proper model output verification
-2. ✅ Correct label convention handling
-3. ✅ Balanced fusion weights
-4. ✅ Proper evaluation with ground truth
-5. ✅ Research questions answered
-6. ✅ Statistical analysis
-
-Author: Fixed by AI Assistant
-Date: 2025
-"""
-
 import os
 import cv2
 import torch
@@ -193,11 +178,11 @@ def load_models(audio_model_path, video_model_path):
     print("="*70)
     
     # Load Audio
-    print("\n🎵 Audio model...")
+    print("\n Audio model...")
     audio_model = AudioXceptionClassifier(num_classes=2).to(device)
     audio_ckpt = load_checkpoint_auto(audio_model, audio_model_path, is_video_model=False)
     audio_model.eval()
-    print(f"✅ Loaded! Epoch: {audio_ckpt.get('epoch', 'N/A')}")
+    print(f" Loaded! Epoch: {audio_ckpt.get('epoch', 'N/A')}")
     
     # Load Video - MUST USE SAME ARCHITECTURE AS TRAINING!
     # Training: timm.create_model('xception', pretrained=True) + reset_classifier(2)
@@ -205,7 +190,7 @@ def load_models(audio_model_path, video_model_path):
     video_model = VideoXceptionModel(num_classes=2).to(device)
     video_ckpt = load_checkpoint_auto(video_model, video_model_path, is_video_model=True)
     video_model.eval()
-    print(f"✅ Loaded! Epoch: {video_ckpt.get('epoch', 'N/A')}")
+    print(f" Loaded! Epoch: {video_ckpt.get('epoch', 'N/A')}")
     
     # Verify outputs
     print("\n" + "="*70)
@@ -230,7 +215,7 @@ def load_models(audio_model_path, video_model_path):
         print(f"   Sample probs [FAKE, REAL]: {video_probs[0].cpu().numpy()}")
     
     print("\n" + "="*70)
-    print("✅ BOTH MODELS READY!")
+    print(" BOTH MODELS READY!")
     print("="*70)
     
     return audio_model, video_model
@@ -256,7 +241,7 @@ def extract_audio_from_video(video_path, output_path="temp_audio.wav", sr=16000)
         else:
             return None
     except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
-        print(f"⚠️  Audio extraction error: {e}")
+        print(f"  Audio extraction error: {e}")
         return None
 
 
@@ -273,7 +258,7 @@ def preprocess_audio(audio_path, sr=16000, window_size=2.0, overlap=0.5):
     try:
         y, sr = librosa.load(audio_path, sr=sr)
     except Exception as e:
-        print(f"⚠️  Error loading audio: {e}")
+        print(f"  Error loading audio: {e}")
         return []
     win_len = int(window_size * sr)
     hop_len = int(win_len * (1 - overlap))  # 50% overlap = hop = 50% of window
@@ -424,16 +409,16 @@ def process_video_multimodal(video_path, video_model, audio_model, fusion_module
     
     if audio_path and os.path.exists(audio_path):
         if verbose:
-            print("✅ Audio extracted")
+            print(" Audio extracted")
         # Get audio duration for info
         y, sr = librosa.load(audio_path, sr=16000)
         audio_duration = len(y) / sr
         audio_mels = preprocess_audio(audio_path, overlap=audio_overlap)
         if verbose:
-            print(f"✅ Audio duration: {audio_duration:.1f}s")
-            print(f"✅ Extracted {len(audio_mels)} audio windows (overlap={audio_overlap*100:.0f}%)")
+            print(f" Audio duration: {audio_duration:.1f}s")
+            print(f" Extracted {len(audio_mels)} audio windows (overlap={audio_overlap*100:.0f}%)")
             if len(audio_mels) < 5:
-                print(f"   ⚠️  Warning: Only {len(audio_mels)} windows - video might be short or audio extraction issue")
+                print(f"  Warning: Only {len(audio_mels)} windows - video might be short or audio extraction issue")
         audio_available = len(audio_mels) > 0
 
     # PHASE 2: VIDEO
@@ -442,7 +427,7 @@ def process_video_multimodal(video_path, video_model, audio_model, fusion_module
 
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        print("❌ Cannot open video!")
+        print(" Cannot open video!")
         return None
 
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -500,7 +485,6 @@ def process_video_multimodal(video_path, video_model, audio_model, fusion_module
                         audio_tensor = audio_mels[audio_idx].unsqueeze(0).to(device)
                         audio_logits_raw = audio_model(audio_tensor)
                         
-                        # 🔥 FIX: Temperature scaling to reduce overconfidence
                         # Higher temperature = softer probabilities (less confident)
                         audio_logits = audio_logits_raw / audio_temperature
                         audio_probs = F.softmax(audio_logits, dim=1)
@@ -517,13 +501,9 @@ def process_video_multimodal(video_path, video_model, audio_model, fusion_module
                         # ADAPTIVE FUSION
                         # Support different fusion strategies
                         if fusion_strategy == 'equal':
-                            # 🔬 EQUAL/BALANCED MODE: 50% video, 50% audio
-                            # Tidak ada bias, murni rata-rata kedua modality
                             alpha_v = torch.tensor(0.5).to(device)
                             alpha_a = torch.tensor(0.5).to(device)
                         elif fusion_strategy == 'video_trust':
-                            # 🔥 FIXED: Now video model should be more accurate!
-                            # After architecture fix, video should give proper predictions
                             
                             video_fake_prob = video_probs[0, 0].item()
                             video_real_prob = video_probs[0, 1].item()
@@ -531,7 +511,6 @@ def process_video_multimodal(video_path, video_model, audio_model, fusion_module
                             
                             # Trust video more, but use audio for confirmation
                             if video_conf > 0.6:
-                                # Video confident → 90% video, 10% audio
                                 alpha_v = torch.tensor(0.9).to(device)
                                 alpha_a = torch.tensor(0.1).to(device)
                             elif video_fake_prob > video_real_prob:
@@ -548,7 +527,6 @@ def process_video_multimodal(video_path, video_model, audio_model, fusion_module
                                 r_video, r_audio, tau=tau
                             )
                             
-                            # 🔥 FIX: Force minimum weight (prevent one modality from dominating)
                             min_weight = 0.2  # Each modality gets at least 20%
                             if alpha_v < min_weight:
                                 alpha_v = min_weight
@@ -585,7 +563,7 @@ def process_video_multimodal(video_path, video_model, audio_model, fusion_module
     cap.release()
 
     if verbose:
-        print(f"\n✅ Processed {faces_found} faces")
+        print(f"\n Processed {faces_found} faces")
 
     return results
 
@@ -598,7 +576,7 @@ def analyze_results(results, ground_truth_label=None, decision_threshold=0.5,
     """Analyze multimodal results"""
     
     print("\n" + "="*70)
-    print("📊 ANALYSIS")
+    print(" ANALYSIS")
     print("="*70)
 
     video_probs = np.array(results['video_probs']).squeeze()
@@ -639,7 +617,7 @@ def analyze_results(results, ground_truth_label=None, decision_threshold=0.5,
         avg_audio_weight = fusion_weights[:, 1].mean()
         
         if avg_video_weight < 0.3 or avg_audio_weight < 0.3:
-            print(f"\n⚠️  WARNING: Fusion weights are imbalanced!")
+            print(f"\n WARNING: Fusion weights are imbalanced!")
             print(f"   Video: {avg_video_weight:.3f}, Audio: {avg_audio_weight:.3f}")
             print(f"   Try increasing AUDIO_TEMPERATURE or decreasing tau")
     
@@ -648,17 +626,11 @@ def analyze_results(results, ground_truth_label=None, decision_threshold=0.5,
     print(f"   Mean FAKE prob: {fused_fake.mean():.3f}")
     print(f"   Mean REAL prob: {fused_real.mean():.3f}")
 
-    # 🔬 DECISION STRATEGY - CONFIGURABLE FOR EXPERIMENTS
-    # Get fusion strategy from config (passed via decision_threshold hack or global)
     
     if audio_pred is not None:
         video_conf = max(video_fake.mean(), video_real.mean())
         audio_conf = max(audio_fake.mean(), audio_real.mean())
         
-        # EQUAL MODE: Murni berdasarkan fused probability, tidak ada bias
-        # Ini untuk eksperimen membandingkan dengan video_trust mode
-        
-        # Check fusion weight to determine strategy mode
         avg_video_weight = fusion_weights[:, 0].mean()
         
         if abs(avg_video_weight - 0.5) < 0.1:  # EQUAL MODE (weights ~50/50)
@@ -689,12 +661,7 @@ def analyze_results(results, ground_truth_label=None, decision_threshold=0.5,
     
     confidence = fused_real.mean() if predicted_label == 1 else (1 - fused_real.mean())
     
-    # ============================================================================
-    # 🔬 RESEARCH PROPOSAL Q2: PREDICTION ABSTENTION
-    # "What is the best confidence threshold for prediction abstention that 
-    # maximizes accuracy on confident predictions while minimizing false 
-    # classifications on uncertain samples?"
-    # ============================================================================
+
     abstained = False
     if enable_abstention and confidence < abstention_threshold:
         abstained = True
@@ -727,7 +694,7 @@ def analyze_results(results, ground_truth_label=None, decision_threshold=0.5,
         gt_str = "REAL" if ground_truth_label == 1 else "FAKE"
         is_correct = (predicted_label == ground_truth_label)
         print(f"\n  Ground Truth: {gt_str}")
-        print(f"  {'✅ CORRECT' if is_correct else '❌ INCORRECT'}")
+        print(f"  {' CORRECT' if is_correct else '❌ INCORRECT'}")
 
     print("="*70)
 
@@ -735,7 +702,7 @@ def analyze_results(results, ground_truth_label=None, decision_threshold=0.5,
         'predicted_label': predicted_label,
         'confidence': confidence,
         'fused_real_prob': fused_real.mean(),
-        'abstained': abstained,  # 🔬 Q2: Prediction Abstention
+        'abstained': abstained,  
         'video_pred': video_pred,
         'audio_pred': audio_pred,
         'video_probs': {'fake': video_fake.mean(), 'real': video_real.mean()},
@@ -756,61 +723,29 @@ if __name__ == "__main__":
     ╚════════════════════════════════════════════════════════════╝
     """)
     
-    # CONFIGURE THESE PATHS
     AUDIO_MODEL_PATH = "best_audio_xception.pth"
     VIDEO_MODEL_PATH = "epoch_007.pt"
     
-    # ============================================================================
-    # 🔧 CONFIGURATION - UBAH INI UNTUK OPTIMAL PERFORMANCE
-    # ============================================================================
-    
-    # ============================================================================
-    # 🏆 OPTIMAL CONFIGURATION (Fixed for Audio Model Bias)
-    # ============================================================================
-    # ISSUE: Audio model has 785 false negatives (FAKE → REAL) in test set
-    # SOLUTION: Trust video more + higher temperature + lower threshold
-    
-    # Audio temperature scaling (to reduce overconfidence)
-    # 🔬 EXPERIMENT: Set lebih rendah untuk mode EQUAL agar lebih fair
-    # - 1.0 = No scaling (raw output)
-    # - 2.0-5.0 = Light scaling
-    # - 10.0 = Heavy scaling (reduce overconfidence drastis)
-    AUDIO_TEMPERATURE = 2.0  # Turun dari 10.0 untuk eksperimen EQUAL mode
-    
-    # Fusion temperature (tau) - controls sensitivity to reliability differences
-    # LOWERED: Untuk lebih balanced, tidak terlalu sensitive ke audio confidence
+    AUDIO_TEMPERATURE = 2.0  
+
     FUSION_TAU = 0.2  # Turun dari 0.3
     
-    # Decision threshold - probability threshold untuk classify REAL vs FAKE
-    # 🔬 EXPERIMENT: 0.5 = balanced threshold untuk mode EQUAL
-    DECISION_THRESHOLD = 0.5  # Standard 50/50 threshold
+
+    DECISION_THRESHOLD = 0.5  
     
-    # Fusion strategy: 'adaptive', 'equal', 'video_trust'
-    # OPTIONS:
-    #   - 'equal': 50% video, 50% audio (BALANCED - untuk eksperimen)
-    #   - 'video_trust': Trust video lebih (85% video, 15% audio)
-    #   - 'adaptive': Dynamic weights berdasarkan confidence
-    # 🔬 EXPERIMENT MODE: Coba 'equal' untuk lihat perbandingan
-    FUSION_STRATEGY = 'equal'  # BALANCED 50/50 untuk eksperimen
+    FUSION_STRATEGY = 'equal' 
     
-    # Audio window overlap (0.5 = 50% overlap = more windows from same audio)
-    AUDIO_OVERLAP = 0.5  # 50% overlap means 2x more windows
+
+    AUDIO_OVERLAP = 0.5 
     
-    # ============================================================================
-    # 🔬 RESEARCH PROPOSAL FEATURES (Q2: Prediction Abstention)
-    # ============================================================================
-    # Abstention: Jika confidence < threshold, model ABSTAIN (tidak predict)
-    # Ini untuk "minimize false classifications on uncertain samples"
-    ENABLE_ABSTENTION = True  # Set False untuk disable
-    ABSTENTION_THRESHOLD = 0.6  # Confidence minimum untuk membuat prediksi
-    # Jika confidence < 0.6, output = "UNCERTAIN" bukan REAL/FAKE
+    ENABLE_ABSTENTION = True 
+    ABSTENTION_THRESHOLD = 0.6 
     
-    # File browser for video selection
     try:
         from tkinter import filedialog
         import tkinter as tk
         
-        print("\n📁 Opening file browser to select video...")
+        print("\n Opening file browser to select video...")
         root = tk.Tk()
         root.withdraw()  # Hide the main window
         
@@ -823,48 +758,47 @@ if __name__ == "__main__":
         )
         
         if not video_path:
-            print("❌ No video selected. Exiting.")
+            print(" No video selected. Exiting.")
             exit(0)
         
-        print(f"✅ Selected: {video_path}")
+        print(f" Selected: {video_path}")
         
-        # Ask for ground truth label
-        print("\n❓ What is the ground truth label for this video?")
+        print("\n What is the ground truth label for this video?")
         print("   Enter '0' for FAKE, '1' for REAL, or press Enter to skip")
         gt_input = input("Ground truth label (0/1 or Enter): ").strip()
         
         if gt_input in ['0', '1']:
             ground_truth = int(gt_input)
             gt_str = "FAKE" if ground_truth == 0 else "REAL"
-            print(f"✅ Ground truth set to: {gt_str}")
+            print(f" Ground truth set to: {gt_str}")
         else:
             ground_truth = None
-            print("⚠️  No ground truth provided (will skip accuracy check)")
+            print("  No ground truth provided (will skip accuracy check)")
         
     except ImportError:
-        print("⚠️  tkinter not available. Please enter video path manually:")
+        print("  tkinter not available. Please enter video path manually:")
         video_path = input("Video path: ").strip().strip('"').strip("'")
         
         if not video_path or not os.path.exists(video_path):
-            print("❌ Invalid path. Exiting.")
+            print(" Invalid path. Exiting.")
             exit(1)
         
-        print("\n❓ What is the ground truth label? (0=FAKE, 1=REAL, Enter=skip)")
+        print("\n What is the ground truth label? (0=FAKE, 1=REAL, Enter=skip)")
         gt_input = input("Ground truth label: ").strip()
         ground_truth = int(gt_input) if gt_input in ['0', '1'] else None
     
     # Load models
     print("\n" + "="*70)
-    print("🤖 LOADING MODELS")
+    print(" LOADING MODELS")
     print("="*70)
     
     if not os.path.exists(AUDIO_MODEL_PATH):
-        print(f"❌ Audio model not found: {AUDIO_MODEL_PATH}")
+        print(f" Audio model not found: {AUDIO_MODEL_PATH}")
         print("   Please check the path!")
         exit(1)
     
     if not os.path.exists(VIDEO_MODEL_PATH):
-        print(f"❌ Video model not found: {VIDEO_MODEL_PATH}")
+        print(f" Video model not found: {VIDEO_MODEL_PATH}")
         print("   Please check the path!")
         exit(1)
     
@@ -874,7 +808,7 @@ if __name__ == "__main__":
     
     # Process video
     print("\n" + "="*70)
-    print("🎬 PROCESSING VIDEO")
+    print(" PROCESSING VIDEO")
     print("="*70)
     
     results = process_video_multimodal(
@@ -884,17 +818,17 @@ if __name__ == "__main__":
         fusion_module=fusion_module,
         haar_cascade=haar_cascade,
         dnn_net=dnn_net,
-        tau=FUSION_TAU,  # Lower tau = more balanced weights
-        audio_temperature=AUDIO_TEMPERATURE,  # 🔥 FIX: Reduce audio overconfidence
-        audio_overlap=AUDIO_OVERLAP,  # 50% overlap = more audio windows
-        fusion_strategy=FUSION_STRATEGY,  # Fusion strategy
+        tau=FUSION_TAU, 
+        audio_temperature=AUDIO_TEMPERATURE, 
+        audio_overlap=AUDIO_OVERLAP, 
+        fusion_strategy=FUSION_STRATEGY,  
         verbose=True
     )
 
     if results and len(results['video_probs']) > 0:
         # Analyze results
         print("\n" + "="*70)
-        print("📊 ANALYZING RESULTS")
+        print(" ANALYZING RESULTS")
         print("="*70)
         
         analysis = analyze_results(results, ground_truth_label=ground_truth, 
@@ -924,6 +858,7 @@ if __name__ == "__main__":
             print(f"\n  Ground Truth: {'REAL' if ground_truth == 1 else 'FAKE'}")
             print(f"  Result: {'[OK] CORRECT' if is_correct else '[X] WRONG'}")
     else:
-        print("\n❌ No faces detected in video!")
+        print("\n No faces detected in video!")
         print("   Try a different video or check face detection settings.")
+
 
