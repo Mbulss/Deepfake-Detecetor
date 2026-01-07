@@ -11,7 +11,7 @@ import cv2
 from PIL import Image
 import time
 
-from multimodal_fixed import (
+from multimodal import (
     AudioXceptionClassifier,
     VideoXceptionModel,
     AdaptiveFusionModule,

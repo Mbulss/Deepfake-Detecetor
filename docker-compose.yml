@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  deepfake-detector:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./best_audio_xception.pth:/app/best_audio_xception.pth
+      - ./epoch_007.pt:/app/epoch_007.pt
+    environment:
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+

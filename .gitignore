@@ -48,12 +48,6 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Data files (optional - uncomment if you don't want to track data)
-# *.mp4
-# *.avi
-# *.mov
-# *.wav
-# *.mp3
 
 # Logs
 *.log
