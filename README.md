@@ -86,15 +86,9 @@ This deepfake detection system leverages multimodal learning by analyzing both v
 
 ### Processing Pipeline
 
-```
-Video Input
-    ↓
-[Face Detection] → Face Crops → [Video Model] → Video Logits
-    ↓
-[Audio Extraction] → Mel-Spectrograms → [Audio Model] → Audio Logits
-    ↓
-[Adaptive Fusion Module] → Fused Prediction → Final Verdict
-```
+
+<img width="385" height="296" alt="image" src="https://github.com/user-attachments/assets/1dbb512a-de8e-477f-ac16-ee5a9ae2a7f2" />
+
 
 ## 🚀 Installation
 
