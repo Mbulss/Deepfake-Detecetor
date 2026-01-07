@@ -509,7 +509,3 @@ Contributions are welcome! Please follow these steps:
 For questions, issues, or collaborations, please open an issue on GitHub.
 
 ---
-
-**Made with ❤️ for Deepfake Detection Research**
-
-*Last Updated: December 2024*
