@@ -6,17 +6,18 @@ A state-of-the-art deepfake detection system that combines video and audio analy
 
 ## 🚀 Try It Now!
 
-**👉 [Use the Online Demo on Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector) - No installation required!**
+**👉 [Live Demo on AWS EC2](http://47.129.195.219:8501/) - No installation required!**
 
-Or [run it locally](#-quick-start) for full control and customization.
+Or [run it locally](#-quick-start) or [deploy with Docker](#-docker-deployment) for full control and customization.
 
 
 ## 🎯 Overview
 
 This deepfake detection system leverages multimodal learning by analyzing both visual (video frames) and auditory (audio spectrograms) features. The system uses Xception-based neural networks for both modalities and combines their predictions using an adaptive fusion mechanism that dynamically weights each modality based on confidence scores.
 
-**🎯 Two Ways to Use:**
-- **🌐 Online Demo**: [Try it instantly on Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector) - No setup needed!
+**🎯 Multiple Ways to Use:**
+- **🌐 Live Demo**: [Try it instantly on AWS EC2](http://47.129.195.219:8501/) - No setup needed!
+- **🐳 Docker Deployment**: Deploy anywhere with Docker (see [Docker Deployment](#-docker-deployment))
 - **💻 Local Installation**: Full control and customization (see [Installation](#-installation) below)
 
 ### Key Highlights
@@ -86,8 +87,11 @@ This deepfake detection system leverages multimodal learning by analyzing both v
 ### Step 1: Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Mbulss/Deepfake-Detecetor.git
 cd Deepfake-Detecetor
+
+# Install Git LFS (required for model files)
+git lfs install
 ```
 
 ### Step 2: Install Dependencies
@@ -120,41 +124,62 @@ sudo apt-get install ffmpeg
 brew install ffmpeg
 ```
 
-### Step 4: Download Model Checkpoints
+### Step 4: Get Model Checkpoints
 
-Download the pre-trained model checkpoints from Hugging Face and place them in the project root:
+The pre-trained model checkpoints are stored in this repository using Git LFS:
 
-- **Audio Model**: Download [`best_audio_xception.pth`](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/best_audio_xception.pth) (264 MB)
-- **Video Model**: Download [`epoch_007.pt`](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/epoch_007.pt) (207 MB)
+- **Audio Model**: `best_audio_xception.pth` (264 MB)
+- **Video Model**: `epoch_007.pt` (207 MB)
 
-**Quick Download:**
+**If cloning the repository:**
 ```bash
-# Using wget (Linux/Mac)
-wget https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/best_audio_xception.pth
-wget https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/epoch_007.pt
+# Make sure Git LFS is installed
+git lfs install
 
-# Using curl (Linux/Mac)
-curl -L https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/best_audio_xception.pth -o best_audio_xception.pth
-curl -L https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/epoch_007.pt -o epoch_007.pt
+# Clone the repository (models will be downloaded automatically)
+git clone https://github.com/Mbulss/Deepfake-Detecetor.git
+cd Deepfake-Detecetor
+
+# If models didn't download, pull them manually
+git lfs pull
 ```
 
-*Note: Model files are too large for GitHub, so they are hosted on [Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector). If you want to train your own models, see [Model Training](#model-training) section.*
+**If models are missing:**
+The model files are stored with Git LFS. If they don't download automatically, ensure Git LFS is installed and run `git lfs pull`.
+
+*Note: Model files are stored using Git LFS due to their large size. If you want to train your own models, see [Model Training](#model-training) section.*
 
 ## 🎬 Quick Start
 
-You have **two options** to use the Deepfake Detector:
+You have **multiple options** to use the Deepfake Detector:
 
-### Option 1: Use Online Demo (Easiest - No Installation Required) 🌐
+### Option 1: Use Live Demo (Easiest - No Installation Required) 🌐
 
-**Try it instantly on Hugging Face Spaces!**
+**Try it instantly on AWS EC2!**
 
-👉 **[Open Deepfake Detector on Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector)**
+👉 **[Open Deepfake Detector Live Demo](http://47.129.195.219:8501/)**
 
-Simply upload a video and get instant results - no setup required! The demo is fully functional and runs on Hugging Face's servers.
+Simply upload a video and get instant results - no setup required! The demo is fully functional and runs on AWS EC2.
 
-### Option 2: Run Locally
+### Option 2: Run with Docker (Recommended) 🐳
 
-#### 2a. Web Interface (Recommended for Local Use)
+**Using Docker Hub image:**
+```bash
+docker pull mbulss/deepfake-detector:latest
+docker run -d -p 8501:8501 --name deepfake-detector mbulss/deepfake-detector:latest
+```
+
+Then open your browser to `http://localhost:8501`
+
+**Or build from source:**
+```bash
+docker build -t deepfake-detector .
+docker run -d -p 8501:8501 --name deepfake-detector deepfake-detector
+```
+
+### Option 3: Run Locally
+
+#### 3a. Web Interface (Recommended for Local Use)
 
 ```bash
 streamlit run streamlit_app.py
@@ -162,7 +187,7 @@ streamlit run streamlit_app.py
 
 Then open your browser to `http://localhost:8501`
 
-#### 2b. Command Line
+#### 3b. Command Line
 
 ```bash
 python multimodal.py
@@ -309,12 +334,77 @@ Use `Multimodal_Experiment.ipynb` for:
 - Hyperparameter tuning
 - Performance analysis
 
+## 🐳 Docker Deployment
+
+### Using Pre-built Image
+
+The easiest way to deploy is using the pre-built Docker image from Docker Hub:
+
+```bash
+# Pull the image
+docker pull mbulss/deepfake-detector:latest
+
+# Run the container
+docker run -d -p 8501:8501 --name deepfake-detector mbulss/deepfake-detector:latest
+
+# View logs
+docker logs -f deepfake-detector
+
+# Stop the container
+docker stop deepfake-detector
+
+# Start the container
+docker start deepfake-detector
+```
+
+**Docker Hub:** [mbulss/deepfake-detector](https://hub.docker.com/r/mbulss/deepfake-detector)
+
+### Building from Source
+
+```bash
+# Build the image
+docker build -t deepfake-detector .
+
+# Run the container
+docker run -d -p 8501:8501 --name deepfake-detector deepfake-detector
+```
+
+### Docker Compose
+
+```bash
+# Using docker-compose
+docker-compose up -d
+
+# Stop
+docker-compose down
+```
+
+### AWS EC2 Deployment
+
+The application is currently deployed on AWS EC2:
+
+- **Instance Type**: m7i-flex.large (8GB RAM, 2 vCPU)
+- **Live URL**: http://47.129.195.219:8501/
+- **Docker Image**: `mbulss/deepfake-detector:latest`
+
+**Deployment Steps:**
+1. Launch EC2 instance (minimum 4GB RAM recommended)
+2. Install Docker on EC2
+3. Pull and run the Docker image
+4. Configure security group to allow port 8501
+5. Access the application via public IP
+
 ## 📁 Project Structure
 
 ```
 Deepfake-Detecetor/
 ├── streamlit_app.py              # Web application interface
 ├── multimodal.py                 # Core multimodal processing code
+├── Dockerfile                    # Docker container configuration
+├── docker-compose.yml            # Docker Compose configuration
+├── requirements.txt              # Python dependencies
+├── .dockerignore                 # Docker ignore file
+├── .gitattributes                # Git LFS configuration
 ├── VIDEO_FINALLLLLL.ipynb        # Video model training notebook
 ├── AUDIO_FINAL.ipynb             # Audio model training notebook
 ├── Multimodal_Experiment.ipynb   # Multimodal experiments
@@ -323,12 +413,11 @@ Deepfake-Detecetor/
 ├── cross_dataset_lavdf.ipynb     # Cross-dataset evaluation
 ├── README.md                      # This file
 │
-├── Model Checkpoints (download from Hugging Face):
+├── Model Checkpoints (stored with Git LFS):
 │   ├── best_audio_xception.pth   # Audio model weights (264 MB)
 │   └── epoch_007.pt              # Video model weights (207 MB)
-│   └── See Installation Step 4 for download links
 │
-└── Face Detection Models (auto-downloaded):
+└── Face Detection Models:
     ├── haarcascade_frontalface_default.xml
     ├── deploy.prototxt
     └── res10_300x300_ssd_iter_140000.caffemodel
@@ -410,11 +499,13 @@ ABSTENTION_THRESHOLD = 0.6
 ```
 Error: Model files not found!
 ```
-**Solution**: Download the model files from Hugging Face:
-- [best_audio_xception.pth](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/best_audio_xception.pth)
-- [epoch_007.pt](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/epoch_007.pt)
+**Solution**: The model files are stored with Git LFS. Make sure Git LFS is installed and pull the files:
+```bash
+git lfs install
+git lfs pull
+```
 
-Place both files in the project root directory.
+If you cloned the repository, the files should download automatically. If not, ensure Git LFS is properly configured.
 
 **2. FFmpeg not found**
 ```
@@ -451,10 +542,11 @@ Error: Audio extraction error
 
 ### Performance Tips
 
-- **GPU Acceleration**: Use CUDA-enabled PyTorch for faster inference
+- **GPU Acceleration**: Use CUDA-enabled PyTorch for faster inference (Docker image uses CPU-only for compatibility)
 - **Frame Skipping**: Increase `frame_skip` for faster processing (may reduce accuracy)
 - **Max Frames**: Reduce `max_frames` for shorter processing time
 - **Batch Processing**: Process multiple videos in sequence for efficiency
+- **Docker**: Use pre-built image for faster deployment without building from source
 
 ## 🤝 Contributing
 
@@ -482,6 +574,12 @@ Contributions are welcome! Please follow these steps:
 - **OpenCV**: Face detection models
 - **Streamlit**: Web framework
 - **PyTorch & timm**: Deep learning frameworks
+
+## 🔗 Links
+
+- **GitHub Repository**: [Mbulss/Deepfake-Detecetor](https://github.com/Mbulss/Deepfake-Detecetor)
+- **Docker Hub**: [mbulss/deepfake-detector](https://hub.docker.com/r/mbulss/deepfake-detector)
+- **Live Demo**: [http://47.129.195.219:8501/](http://47.129.195.219:8501/)
 
 ## 📧 Contact
 
