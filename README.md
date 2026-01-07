@@ -10,21 +10,6 @@ A state-of-the-art deepfake detection system that combines video and audio analy
 
 Or [run it locally](#-quick-start) for full control and customization.
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Dataset](#dataset)
-- [Model Training](#model-training)
-- [Project Structure](#project-structure)
-- [Technical Details](#technical-details)
-- [Configuration](#configuration)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
 
 ## 🎯 Overview
 
