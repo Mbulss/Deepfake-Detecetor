@@ -1,4 +1,5 @@
 import os
+import time
 import cv2
 import torch
 import torch.nn as nn
@@ -224,9 +225,16 @@ def load_models(audio_model_path, video_model_path):
 # ============================================================================
 # AUDIO PREPROCESSING
 # ============================================================================
-def extract_audio_from_video(video_path, output_path="temp_audio.wav", sr=16000):
+def extract_audio_from_video(video_path, output_path=None, sr=16000):
     """Extract audio from video using ffmpeg"""
     import subprocess
+    import tempfile
+    
+    # Use temp directory for audio file if not specified
+    if output_path is None:
+        temp_dir = tempfile.gettempdir()
+        output_path = os.path.join(temp_dir, f"temp_audio_{os.getpid()}_{int(time.time())}.wav")
+    
     try:
         cmd = [
             'ffmpeg', '-i', video_path,

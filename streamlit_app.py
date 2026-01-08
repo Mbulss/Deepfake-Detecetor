@@ -636,44 +636,93 @@ def main():
                     st.error("Model files not found!")
                     return
                 
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp:
-                    tmp.write(uploaded_file.read())
-                    video_path = tmp.name
+                # Check file size (limit to 500MB to prevent disk space issues)
+                MAX_FILE_SIZE = 500 * 1024 * 1024  # 500MB
+                uploaded_file.seek(0, 2)  # Seek to end
+                file_size = uploaded_file.tell()
+                uploaded_file.seek(0)  # Reset to beginning
                 
-                with st.spinner("Loading AI models..."):
-                    try:
-                        audio_model, video_model, haar, dnn = load_models_cached(
-                            audio_model_path, video_model_path
-                        )
-                        fusion = AdaptiveFusionModule()
-                    except Exception as e:
-                        st.error(f"Error: {e}")
-                        return
+                if file_size > MAX_FILE_SIZE:
+                    st.error(f"File too large! Maximum size is {MAX_FILE_SIZE / (1024*1024):.0f}MB. Your file is {file_size / (1024*1024):.1f}MB")
+                    return
                 
-                progress = st.progress(0, text="Analyzing...")
-                start = time.time()
-                
-                results = process_video(
-                    video_path, video_model, audio_model, fusion,
-                    haar, dnn, st.session_state.config, progress
-                )
-                
-                elapsed = time.time() - start
-                progress.progress(1.0, text=f"Done in {elapsed:.1f}s")
-                
+                # Clean up old temp files before creating new one
+                temp_dir = tempfile.gettempdir()
                 try:
-                    os.remove(video_path)
+                    for f in os.listdir(temp_dir):
+                        if f.startswith('tmp') and (f.endswith('.mp4') or f.endswith('.wav')):
+                            try:
+                                file_path = os.path.join(temp_dir, f)
+                                # Delete files older than 1 hour
+                                if os.path.getmtime(file_path) < time.time() - 3600:
+                                    os.remove(file_path)
+                            except:
+                                pass
                 except:
                     pass
                 
-                if results and results['faces_found'] > 0:
-                    st.session_state.result = get_verdict(
-                        results, st.session_state.config['decision_threshold']
+                video_path = None
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4', dir=temp_dir) as tmp:
+                        # Write in chunks to avoid memory issues
+                        chunk_size = 1024 * 1024  # 1MB chunks
+                        while True:
+                            chunk = uploaded_file.read(chunk_size)
+                            if not chunk:
+                                break
+                            tmp.write(chunk)
+                        video_path = tmp.name
+                    
+                    with st.spinner("Loading AI models..."):
+                        try:
+                            audio_model, video_model, haar, dnn = load_models_cached(
+                                audio_model_path, video_model_path
+                            )
+                            fusion = AdaptiveFusionModule()
+                        except Exception as e:
+                            st.error(f"Error loading models: {e}")
+                            return
+                    
+                    progress = st.progress(0, text="Analyzing...")
+                    start = time.time()
+                    
+                    results = process_video(
+                        video_path, video_model, audio_model, fusion,
+                        haar, dnn, st.session_state.config, progress
                     )
-                    st.session_state.ground_truth = ground_truth
-                    st.rerun()
-                else:
-                    st.error("No faces detected!")
+                    
+                    elapsed = time.time() - start
+                    progress.progress(1.0, text=f"Done in {elapsed:.1f}s")
+                    
+                    if results and results['faces_found'] > 0:
+                        st.session_state.result = get_verdict(
+                            results, st.session_state.config['decision_threshold']
+                        )
+                        st.session_state.ground_truth = ground_truth
+                        st.rerun()
+                    else:
+                        st.error("No faces detected!")
+                except OSError as e:
+                    if "No space left on device" in str(e):
+                        st.error("❌ Disk space full! Please free up space and try again.")
+                    else:
+                        st.error(f"File system error: {e}")
+                except Exception as e:
+                    st.error(f"Error processing video: {e}")
+                finally:
+                    # Always cleanup temp files
+                    if video_path and os.path.exists(video_path):
+                        try:
+                            os.remove(video_path)
+                        except:
+                            pass
+                    # Clean up audio temp file if it exists
+                    audio_temp = os.path.join(temp_dir, "temp_audio.wav")
+                    if os.path.exists(audio_temp):
+                        try:
+                            os.remove(audio_temp)
+                        except:
+                            pass
     
     with col2:
         # Section title - no box
