@@ -459,13 +459,6 @@ Contributions are welcome! Please follow these steps:
 - Bug fixes
 - New features
 
-## 🙏 Acknowledgments
-
-- **FakeAVCeleb Dataset**: [mbulsss on Kaggle](https://www.kaggle.com/datasets/mbulsss/fakeavceleb)
-- **Xception Architecture**: Original paper by François Chollet
-- **OpenCV**: Face detection models
-- **Streamlit**: Web framework
-- **PyTorch & timm**: Deep learning frameworks
 
 ## 📧 Contact
 
