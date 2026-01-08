@@ -6,7 +6,7 @@ A state-of-the-art deepfake detection system that combines video and audio analy
 
 ## 🚀 Try It Now!
 
-**👉 [Use the Online Demo on Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector) - No installation required!**
+**👉 [Use the Online Demo](http://54.169.34.39:8501/) - No installation required!**
 
 Or [run it locally](#-quick-start) for full control and customization.
 
@@ -16,7 +16,7 @@ Or [run it locally](#-quick-start) for full control and customization.
 This deepfake detection system leverages multimodal learning by analyzing both visual (video frames) and auditory (audio spectrograms) features. The system uses Xception-based neural networks for both modalities and combines their predictions using an adaptive fusion mechanism that dynamically weights each modality based on confidence scores.
 
 **🎯 Two Ways to Use:**
-- **🌐 Online Demo**: [Try it instantly on Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector) - No setup needed!
+- **🌐 Online Demo**: [Try it instantly](http://54.169.34.39:8501/) - No setup needed!
 - **💻 Local Installation**: Full control and customization (see [Installation](#-installation) below)
 
 ### Key Highlights
@@ -120,25 +120,11 @@ sudo apt-get install ffmpeg
 brew install ffmpeg
 ```
 
-### Step 4: Download Model Checkpoints
+### Step 4: Model Checkpoints
 
-Download the pre-trained model checkpoints from Hugging Face and place them in the project root:
+**For Docker deployment:** Model checkpoints are already included in the Docker image. No download needed!
 
-- **Audio Model**: Download [`best_audio_xception.pth`](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/best_audio_xception.pth) (264 MB)
-- **Video Model**: Download [`epoch_007.pt`](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/epoch_007.pt) (207 MB)
-
-**Quick Download:**
-```bash
-# Using wget (Linux/Mac)
-wget https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/best_audio_xception.pth
-wget https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/epoch_007.pt
-
-# Using curl (Linux/Mac)
-curl -L https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/best_audio_xception.pth -o best_audio_xception.pth
-curl -L https://huggingface.co/spaces/Mbulsssss/deepfake-detector/resolve/main/epoch_007.pt -o epoch_007.pt
-```
-
-*Note: Model files are too large for GitHub, so they are hosted on [Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector). If you want to train your own models, see [Model Training](#model-training) section.*
+**For local development:** If you're running locally without Docker, you'll need to download the model files. See [Troubleshooting](#-troubleshooting) section for details.
 
 ## 🎬 Quick Start
 
@@ -146,11 +132,11 @@ You have **two options** to use the Deepfake Detector:
 
 ### Option 1: Use Online Demo (Easiest - No Installation Required) 🌐
 
-**Try it instantly on Hugging Face Spaces!**
+**Try it instantly on our live server!**
 
-👉 **[Open Deepfake Detector on Hugging Face](https://huggingface.co/spaces/Mbulsssss/deepfake-detector)**
+👉 **[Open Deepfake Detector](http://54.169.34.39:8501/)**
 
-Simply upload a video and get instant results - no setup required! The demo is fully functional and runs on Hugging Face's servers.
+Simply upload a video and get instant results - no setup required! The demo is fully functional and runs on our EC2 server.
 
 ### Option 2: Run Locally
 
@@ -323,10 +309,10 @@ Deepfake-Detecetor/
 ├── cross_dataset_lavdf.ipynb     # Cross-dataset evaluation
 ├── README.md                      # This file
 │
-├── Model Checkpoints (download from Hugging Face):
+├── Model Checkpoints (included in Docker image):
 │   ├── best_audio_xception.pth   # Audio model weights (264 MB)
 │   └── epoch_007.pt              # Video model weights (207 MB)
-│   └── See Installation Step 4 for download links
+│   └── Models are pre-loaded in the Docker container
 │
 └── Face Detection Models (auto-downloaded):
     ├── haarcascade_frontalface_default.xml
@@ -410,11 +396,9 @@ ABSTENTION_THRESHOLD = 0.6
 ```
 Error: Model files not found!
 ```
-**Solution**: Download the model files from Hugging Face:
-- [best_audio_xception.pth](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/best_audio_xception.pth)
-- [epoch_007.pt](https://huggingface.co/spaces/Mbulsssss/deepfake-detector/blob/main/epoch_007.pt)
-
-Place both files in the project root directory.
+**Solution**: 
+- **If using Docker**: Models are already included in the image. Make sure you're using the latest image: `docker pull mbulss/deepfake-detector:latest`
+- **If running locally**: You'll need to download the model files. Contact the repository maintainer for access to the model files, or train your own models using the training scripts provided.
 
 **2. FFmpeg not found**
 ```
