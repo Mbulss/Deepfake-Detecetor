@@ -4,6 +4,8 @@ A state-of-the-art deepfake detection system that combines video and audio analy
 
 ![Deepfake Detection](https://img.shields.io/badge/Deepfake-Detection-red) ![Multimodal](https://img.shields.io/badge/Multimodal-Video%20%2B%20Audio-blue) ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-orange) ![Streamlit](https://img.shields.io/badge/Streamlit-Web%20App-green)
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/Mbulss/Deepfake-Detecetor)
+
 ## 🚀 Try It Now!
 
 **👉 [Use the Online Demo](http://54.169.34.39:8501/) - No installation required!**
@@ -86,7 +88,7 @@ This deepfake detection system leverages multimodal learning by analyzing both v
 ### Step 1: Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Mbulss/Deepfake-Detecetor.git
 cd Deepfake-Detecetor
 ```
 
@@ -388,6 +390,278 @@ ENABLE_ABSTENTION = True
 ABSTENTION_THRESHOLD = 0.6
 ```
 
+## ☁️ Cloud Deployment
+
+This project can be deployed to cloud services for production use. The online demo is currently running on AWS EC2. Below are detailed instructions for cloud deployment.
+
+### AWS EC2 Deployment
+
+#### Prerequisites
+
+- AWS Account (sign up at [aws.amazon.com](https://aws.amazon.com))
+- AWS CLI installed and configured
+- Docker installed on your local machine
+- Basic knowledge of EC2 instances
+
+#### Step 1: Create EC2 Instance
+
+1. **Log in to AWS Console**
+   - Go to [AWS Console](https://console.aws.amazon.com)
+   - Navigate to EC2 service
+
+2. **Launch Instance**
+   - Click "Launch Instance"
+   - **Name**: `deepfake-detector`
+   - **AMI**: Choose Ubuntu 22.04 LTS (or latest)
+   - **Instance Type**: 
+     - **Free Tier Eligible Options** (Recommended for testing):
+       - `t3.micro` (2 vCPU, 1 GiB RAM) - Free tier eligible
+       - `t3.small` (2 vCPU, 2 GiB RAM) - Free tier eligible
+       - `c7i-flex.large` (2 vCPU, 4 GiB RAM) - Free tier eligible
+       - `m7i-flex.large` (2 vCPU, 8 GiB RAM) - Free tier eligible ⭐ **We used this for project**ed
+     - **For Production** (GPU instances - paid):
+       - `g4dn.xlarge` (4 vCPU, 16 GiB RAM, 1x NVIDIA T4 GPU)
+       - `g4dn.2xlarge` (8 vCPU, 32 GiB RAM, 1x NVIDIA T4 GPU)
+       - `g4dn.4xlarge` (16 vCPU, 64 GiB RAM, 1x NVIDIA T4 GPU)
+     - **Note**: For free tier testing, `m7i-flex.large` provides good performance. GPU instances offer faster inference but are not free tier eligible.
+   - **Key Pair**: Create new or select existing SSH key pair
+   - **Network Settings**: 
+     - Allow HTTP traffic from anywhere (0.0.0.0/0)
+     - Allow HTTPS traffic (optional)
+     - Add custom TCP rule for port 8501 (Streamlit)
+   - **Storage**: Minimum 20GB (recommended 50GB for models)
+   - Click "Launch Instance"
+
+3. **Configure Security Group**
+   - Go to Security Groups in EC2 console
+   - Edit inbound rules:
+     - SSH (22): Your IP only
+     - Custom TCP (8501): 0.0.0.0/0 (for public access) !important
+     - HTTP (80): 0.0.0.0/0 (optional, for reverse proxy)
+     - HTTPS (443): 0.0.0.0/0 (optional, for SSL)
+
+#### Step 2: Connect to EC2 Instance
+
+```bash
+# Replace with your key file and instance IP
+ssh -i your-key.pem ubuntu@YOUR_EC2_IP_ADDRESS
+```
+
+#### Step 3: Install Docker on EC2
+
+```bash
+# Update system
+sudo apt-get update
+
+# Install Docker
+sudo apt-get install -y docker.io docker-compose
+
+# Start Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add user to docker group (to run without sudo)
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Verify installation
+docker --version
+```
+
+#### Step 4: Install Docker Compose (if not included)
+
+```bash
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+
+#### Step 5: Clone Repository on EC2
+
+```bash
+# Install Git if not present
+sudo apt-get install -y git
+
+   # Clone repository
+   git clone https://github.com/Mbulss/Deepfake-Detecetor.git
+   cd Deepfake-Detecetor
+```
+
+#### Step 6: Build and Run Docker Container
+
+**Option A: Using Docker Compose (Recommended)**
+
+```bash
+# Build and start container
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop container
+docker-compose down
+```
+
+**Option B: Using Docker Directly**
+
+```bash
+# Build image
+docker build -t deepfake-detector .
+
+# Run container
+docker run -d \
+  --name deepfake-detector \
+  -p 8501:8501 \
+  -v $(pwd)/best_audio_xception.pth:/app/best_audio_xception.pth \
+  -v $(pwd)/epoch_007.pt:/app/epoch_007.pt \
+  deepfake-detector
+
+# View logs
+docker logs -f deepfake-detector
+```
+
+#### Step 7: Access the Application
+
+1. **Get Public IP**: In EC2 console, note your instance's public IP address
+2. **Access URL**: `http://YOUR_EC2_IP:8501`
+3. **Test**: Open the URL in your browser to verify deployment
+
+#### Step 8: Set Up Domain and SSL (Optional)
+
+**Using Nginx Reverse Proxy:**
+
+```bash
+# Install Nginx
+sudo apt-get install -y nginx
+
+# Create Nginx configuration
+sudo nano /etc/nginx/sites-available/deepfake-detector
+```
+
+Add configuration:
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:8501;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+```bash
+# Enable site
+sudo ln -s /etc/nginx/sites-available/deepfake-detector /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+**Set Up SSL with Let's Encrypt:**
+
+```bash
+# Install Certbot
+sudo apt-get install -y certbot python3-certbot-nginx
+
+# Obtain SSL certificate
+sudo certbot --nginx -d your-domain.com
+
+# Auto-renewal (already configured by certbot)
+```
+
+### Docker Hub Deployment
+
+If you want to use the pre-built Docker image:
+
+```bash
+# Pull pre-built image
+docker pull mbulss/deepfake-detector:latest
+
+# Run container
+docker run -d \
+  --name deepfake-detector \
+  -p 8501:8501 \
+  mbulss/deepfake-detector:latest
+```
+
+### Configuration for Cloud Deployment
+
+#### Environment Variables
+
+Create `.env` file or set environment variables:
+
+```bash
+# In docker-compose.yml or docker run command
+environment:
+  - PYTHONUNBUFFERED=1
+  - CUDA_VISIBLE_DEVICES=0  # For GPU instances
+```
+
+#### Resource Requirements
+
+- **CPU**: Minimum 2 cores, recommended 4+ (16+ for production)
+- **RAM**: Minimum 4GB, recommended 8GB+ (64GB+ for production with large instances)
+- **GPU**: Optional but recommended (NVIDIA T4 or better)
+  - Larger instances (g4dn.4xlarge+) provide better performance for concurrent processing
+- **Storage**: 20GB minimum (50GB+ recommended for models, 100GB+ for production)
+- **Network**: High bandwidth recommended for faster video uploads/downloads
+
+#### Cost Estimation (AWS EC2)
+
+**Free Tier Eligible Instances** (Recommended for testing):
+- **t3.micro** (2 vCPU, 1 GiB RAM): **FREE** (within free tier limits)
+- **t3.small** (2 vCPU, 2 GiB RAM): **FREE** (within free tier limits)
+- **c7i-flex.large** (2 vCPU, 4 GiB RAM): **FREE** (within free tier limits)
+- **m7i-flex.large** (2 vCPU, 8 GiB RAM): **FREE** (within free tier limits) ⭐ **Used for this deployment**
+
+**Paid GPU Instances** (For production - not free tier):
+- **g4dn.xlarge** (4 vCPU, 16 GiB RAM, 1x NVIDIA T4): ~$0.526/hour (~$380/month)
+- **g4dn.2xlarge** (8 vCPU, 32 GiB RAM, 1x NVIDIA T4): ~$0.752/hour (~$540/month)
+- **g4dn.4xlarge** (16 vCPU, 64 GiB RAM, 1x NVIDIA T4): ~$1.204/hour (~$870/month)
+
+**💡 Tip**: For free tier testing, `m7i-flex.large` provides good performance with 8 GiB RAM. GPU instances offer faster inference but are paid and not included in the free tier.
+
+
+### Monitoring and Maintenance
+
+#### View Logs
+
+```bash
+# Docker Compose
+docker-compose logs -f
+
+# Docker
+docker logs -f deepfake-detector
+```
+
+#### Restart Service
+
+```bash
+# Docker Compose
+docker-compose restart
+
+# Docker
+docker restart deepfake-detector
+```
+
+#### Update Application
+
+```bash
+# Pull latest code
+git pull origin main
+
+# Rebuild and restart
+docker-compose down
+docker-compose up -d --build
+```
+
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -466,6 +740,10 @@ Contributions are welcome! Please follow these steps:
 - **OpenCV**: Face detection models
 - **Streamlit**: Web framework
 - **PyTorch & timm**: Deep learning frameworks
+
+## 🔗 Repository
+
+**GitHub Repository**: [https://github.com/Mbulss/Deepfake-Detecetor](https://github.com/Mbulss/Deepfake-Detecetor)
 
 ## 📧 Contact
 
