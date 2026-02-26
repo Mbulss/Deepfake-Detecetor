@@ -18,7 +18,7 @@ Or [run it locally](#-quick-start) for full control and customization.
 This deepfake detection system leverages multimodal learning by analyzing both visual (video frames) and auditory (audio spectrograms) features. The system uses Xception-based neural networks for both modalities and combines their predictions using an adaptive fusion mechanism that dynamically weights each modality based on confidence scores.
 
 **🎯 Two Ways to Use:**
-- **🌐 Online Demo**: [Try it instantly](http://54.169.34.39:8501/) - No setup needed!
+- **🌐 Online Demo**: [Try it instantly](http://18.136.199.111:8501/) - No setup needed!
 - **💻 Local Installation**: Full control and customization (see [Installation](#-installation) below)
 
 ### Key Highlights
@@ -136,7 +136,7 @@ You have **two options** to use the Deepfake Detector:
 
 **Try it instantly on our live server!**
 
-👉 **[Open Deepfake Detector](http://54.169.34.39:8501/)**
+👉 **[Open Deepfake Detector](http://18.136.199.111:8501/)**
 
 Simply upload a video and get instant results - no setup required! The demo is fully functional and runs on our EC2 server.
 
