@@ -8,7 +8,7 @@ A state-of-the-art deepfake detection system that combines video and audio analy
 
 ## 🚀 Try It Now!
 
-**👉 [Use the Online Demo](http://54.169.34.39:8501/) - No installation required!**
+**👉 [Use the Online Demo](https://huggingface.co/spaces/Mbulsssss/deepfake-detector) - No installation required!**
 
 Or [run it locally](#-quick-start) for full control and customization.
 
@@ -18,7 +18,7 @@ Or [run it locally](#-quick-start) for full control and customization.
 This deepfake detection system leverages multimodal learning by analyzing both visual (video frames) and auditory (audio spectrograms) features. The system uses Xception-based neural networks for both modalities and combines their predictions using an adaptive fusion mechanism that dynamically weights each modality based on confidence scores.
 
 **🎯 Two Ways to Use:**
-- **🌐 Online Demo**: [Try it instantly](http://18.136.199.111:8501/) - No setup needed!
+- **🌐 Online Demo**: [Try it instantly](https://huggingface.co/spaces/Mbulsssss/deepfake-detector) - No setup needed!
 - **💻 Local Installation**: Full control and customization (see [Installation](#-installation) below)
 
 ### Key Highlights
@@ -134,11 +134,11 @@ You have **two options** to use the Deepfake Detector:
 
 ### Option 1: Use Online Demo (Easiest - No Installation Required) 🌐
 
-**Try it instantly on our live server!**
+**Try it instantly on Hugging Face Spaces!**
 
-👉 **[Open Deepfake Detector](http://18.136.199.111:8501/)**
+👉 **[Open Deepfake Detector](https://huggingface.co/spaces/Mbulsssss/deepfake-detector)**
 
-Simply upload a video and get instant results - no setup required! The demo is fully functional and runs on our EC2 server.
+The demo used to run on EC2; it now runs on [Hugging Face Spaces](https://huggingface.co/spaces) (free)—no setup or server cost. Just upload a video and get results.
 
 ### Option 2: Run Locally
 
@@ -392,9 +392,15 @@ ABSTENTION_THRESHOLD = 0.6
 
 ## ☁️ Cloud Deployment
 
-This project can be deployed to cloud services for production use. The online demo is currently running on AWS EC2. Below are detailed instructions for cloud deployment.
+The **live demo** was originally hosted on AWS EC2; it has been moved to **Hugging Face Spaces** so the app can stay online without server costs. You can still self-host using EC2 or Docker if you prefer.
 
-### AWS EC2 Deployment
+### Live Demo (Hugging Face Spaces)
+
+**👉 [https://huggingface.co/spaces/Mbulsssss/deepfake-detector](https://huggingface.co/spaces/Mbulsssss/deepfake-detector)**
+
+Runs on Hugging Face's free tier—no EC2 or other server cost. Upload a video and get results directly in the browser.
+
+### AWS EC2 Deployment (Optional – Self-Hosted)
 
 #### Prerequisites
 
@@ -418,7 +424,7 @@ This project can be deployed to cloud services for production use. The online de
        - `t3.micro` (2 vCPU, 1 GiB RAM) - Free tier eligible
        - `t3.small` (2 vCPU, 2 GiB RAM) - Free tier eligible
        - `c7i-flex.large` (2 vCPU, 4 GiB RAM) - Free tier eligible
-       - `m7i-flex.large` (2 vCPU, 8 GiB RAM) - Free tier eligible ⭐ **We used this for project**ed
+       - `m7i-flex.large` (2 vCPU, 8 GiB RAM) - Free tier eligible ⭐ (previously used for project)
      - **For Production** (GPU instances - paid):
        - `g4dn.xlarge` (4 vCPU, 16 GiB RAM, 1x NVIDIA T4 GPU)
        - `g4dn.2xlarge` (8 vCPU, 32 GiB RAM, 1x NVIDIA T4 GPU)
@@ -619,14 +625,14 @@ environment:
 - **t3.micro** (2 vCPU, 1 GiB RAM): **FREE** (within free tier limits)
 - **t3.small** (2 vCPU, 2 GiB RAM): **FREE** (within free tier limits)
 - **c7i-flex.large** (2 vCPU, 4 GiB RAM): **FREE** (within free tier limits)
-- **m7i-flex.large** (2 vCPU, 8 GiB RAM): **FREE** (within free tier limits) ⭐ **Used for this deployment**
+- **m7i-flex.large** (2 vCPU, 8 GiB RAM): **FREE** (within free tier limits) – optional for self-hosting; live demo is on Hugging Face Spaces
 
 **Paid GPU Instances** (For production - not free tier):
 - **g4dn.xlarge** (4 vCPU, 16 GiB RAM, 1x NVIDIA T4): ~$0.526/hour (~$380/month)
 - **g4dn.2xlarge** (8 vCPU, 32 GiB RAM, 1x NVIDIA T4): ~$0.752/hour (~$540/month)
 - **g4dn.4xlarge** (16 vCPU, 64 GiB RAM, 1x NVIDIA T4): ~$1.204/hour (~$870/month)
 
-**💡 Tip**: For free tier testing, `m7i-flex.large` provides good performance with 8 GiB RAM. GPU instances offer faster inference but are paid and not included in the free tier.
+**💡 Tip**: We used to run the demo on EC2; it’s now on [Hugging Face Spaces](https://huggingface.co/spaces/Mbulsssss/deepfake-detector) (free) so we don’t pay for a server. The EC2 steps above are for anyone who wants to self-host. For that, free-tier instances like `m7i-flex.large` work; GPU instances are paid.
 
 
 ### Monitoring and Maintenance
